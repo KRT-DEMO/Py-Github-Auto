@@ -11,7 +11,7 @@ user_route = '/user'
 headers = {"accept": "application/vnd.github.v3+json"}
 user = 'KRT-Demo'
 password = 'Dog.Bone1'
-personal_access_token = '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'
+personal_access_token = ''
 
 
 # Command Line argument to run pytest with html reports:
