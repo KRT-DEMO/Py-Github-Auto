@@ -1,3 +1,4 @@
+import pytest
 import requests
 from pytest_check import equal
 import uuid
@@ -13,9 +14,28 @@ user = 'KRT-Demo'
 password = 'Dog.Bone1'
 personal_access_token = ''
 
-
 # Command Line argument to run pytest with html reports:
-# pytest --html=report.html --self-contained-html
+# pytest --html=report.html --self-contained-html --approvaltests-use-reporter='PythonNative'
+
+@pytest.fixture(autouse=True)
+def cleanup_repos():
+    # Get all Repos
+    repos = list()
+    response = requests.get(BASE_GitHub_API_URL + user_repos_route, headers=headers, auth=(user, personal_access_token))
+    repos_json = json.loads(response.content)
+
+    # build a list of all repos that contain the word Repo
+    for x in repos_json:
+        if 'Repo' in x['name']:
+            repos.append(x['name'])
+    print(response.content)
+
+    # Delete all repos that were returned
+    for repo in repos:
+        delete_response = requests.delete(BASE_GitHub_API_URL + repos_route + '/' + user + '/' + repo, headers=headers,
+                                          auth=(user, personal_access_token))
+        assert delete_response.status_code == 204
+
 
 def test_get_user_repos():
     response = requests.get(BASE_GitHub_API_URL + user_repos_route, headers=headers, auth=(user, personal_access_token))
@@ -23,7 +43,7 @@ def test_get_user_repos():
     print(response.status_code)
     print(response.content)
     # using pytest-checks allows errors allow validations to fail but still allow the test to run
-    equal(response.status_code, 201)
+    equal(response.status_code, 200)
     equal(response.status_code, 200)
 
 
